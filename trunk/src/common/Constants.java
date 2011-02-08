@@ -11,4 +11,8 @@ public interface Constants {
 	int LINK_DROP = 2;
 	char FIELD_SEPARATOR = ':';
 	int MAX_MSG_SIZE = 1024;
+	
+	
+	
+	enum EventType { INSERT, DELETE};
 }
