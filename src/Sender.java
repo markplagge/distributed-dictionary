@@ -1,4 +1,3 @@
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -25,18 +24,17 @@ class Sender implements Runnable {
 	private int routerPort;
 
 	// queue from which messages are dispatched to the router
-	private Queue<String> messages;
+	private Queue<Message> messages;
 
 	// socket to send messages to the router
 	private DatagramSocket socket;
-	
+
 	// max message size permissible for every message sent
 	private int messageMaxSize;
 
 	// ip address of router
 	private InetAddress routerIp;
-	
-	
+
 	private static Logger logger = null;
 
 	public Sender(DatagramSocket socket, int messageMaxSize, String routerIp,
@@ -47,7 +45,7 @@ class Sender implements Runnable {
 		this.socket = socket;
 		this.routerIp = InetAddress.getByName(routerIp);
 		this.routerPort = routerPort;
-		this.messages = new LinkedList<String>();
+		this.messages = new LinkedList<Message>();
 		this.t = new Thread(this);
 		this.t.setName("SenderThread");
 		this.t.start();
@@ -55,24 +53,21 @@ class Sender implements Runnable {
 	}
 
 	// queues a message into the message queue
-	public boolean queueMessage(String msg) {
-		if (msg.length() < this.messageMaxSize) {
-			// sychronized block to prevent concurrent read/write to the queue
-			synchronized (messages) {
-				logger.info("Queued message -> \""+msg+"\"");
-				this.messages.add(msg);
-			}
-			return true;
-		}
+	public boolean queueMessage(Message msg) {
 
-		return false;
+		// sychronized block to prevent concurrent read/write to the queue
+		synchronized (messages) {
+			logger.info("Queued message to \"" + msg.getDestinationId() + "\"");
+			this.messages.add(msg);
+		}
+		return true;
 	}
 
 	@Override
 	public void run() {
-	    		logger.info("Sender thread started");
+		logger.info("Sender thread started");
 		while (true) {
-			String aMsg = null;
+			Message aMsg = null;
 
 			// sychronized block to prevent concurrent read/write to the queue
 			synchronized (messages) {
@@ -105,7 +100,8 @@ class Sender implements Runnable {
 		// sends packet to the router
 		this.socket.send(aPacket);
 
-		logger.info("Sent message to router -> \"" + new String(dataToBeSent)+"\"");
+		logger.info("Sent message to router -> \""
+				+ aMessage.getDestinationId() + "\"");
 	}
 
 }
