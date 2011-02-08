@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class Message implements Serializable {
 	
@@ -15,13 +16,21 @@ public class Message implements Serializable {
 	private transient int source_id;
 	private transient int destination_id;
 	
-	public Message(EventLog eL, TimeTable tt) {
+	public Message(EventLog eL, TimeTable tt, int sourceId, int destinationId) {
 		eventLog = eL;
 		timeTable = tt;
+		this.source_id = sourceId;
+		this.destination_id = destinationId;
 	}
 	
-	public Message(byte [] byteStream) {		
-		ByteArrayInputStream bis = new ByteArrayInputStream(byteStream);
+	public Message(byte [] byteStream) {
+		
+		this.source_id = byteStream[0];
+		this.destination_id=byteStream[1];
+		
+		byte[] objectBytes=Arrays.copyOfRange(byteStream,2,byteStream.length);
+		
+		ByteArrayInputStream bis = new ByteArrayInputStream(objectBytes);
 		try {
 			ObjectInputStream in = new ObjectInputStream(bis);
 			try {
@@ -35,6 +44,14 @@ public class Message implements Serializable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public int getSourceId() {
+		return source_id;
+	}
+
+	public int getDestinationId() {
+		return destination_id;
 	}
 	
 	public EventLog getEvenLog() {
@@ -59,8 +76,18 @@ public class Message implements Serializable {
 			e.printStackTrace();
 		}
 	
-		this.s
-		return serializedMessage;
+		byte sourceIdByte=new Integer(this.source_id).byteValue();
+		byte destnIdByte=new Integer(this.destination_id).byteValue();
+		
+		byte[] msg=new byte[serializedMessage.length+2];
+		msg[0]=sourceIdByte;
+		msg[1]=destnIdByte;
+		for(int index=0;index<serializedMessage.length;index++){
+			msg[index+2]=serializedMessage[index];
+		}
+		
+		
+		return msg;
 	}
 	
 	public static void main(String args[]){
@@ -71,7 +98,7 @@ public class Message implements Serializable {
 		tt.test_updateEntry(3, 4);
 		tt.test_updateEntry(2, 14);
 		
-		Message m0 = new Message(eL, tt);
+		Message m0 = new Message(eL, tt, 0, 4);
 		System.out.println("m0:");
 		System.out.println(m0.getTimeTable().toString());
 		
@@ -80,6 +107,7 @@ public class Message implements Serializable {
 		
 		Message m0_from_bytes = new Message(ser_m0);
 		System.out.println("m0_from_bytes:");
-		System.out.println(m0_from_bytes.getTimeTable().toString());		
+		System.out.println(m0_from_bytes.getTimeTable().toString());
+		System.out.println(m0_from_bytes.getSourceId() + " -> " + m0_from_bytes.getDestinationId());
 	}
 }
