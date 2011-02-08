@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;
 
@@ -7,7 +8,7 @@ import common.Constants.EventType;
 /*
  * Stores a log of all events occuring in the distributed system
  */
-public class EventLog {
+public class EventLog implements Serializable {
 
 	// List of all events
 	private List<EventRecord> listOfRecords;
