@@ -12,6 +12,8 @@ public class Message implements Serializable {
 	
 	private EventLog eventLog;
 	private TimeTable timeTable;
+	private transient int source_id;
+	private transient int destination_id;
 	
 	public Message(EventLog eL, TimeTable tt) {
 		eventLog = eL;
@@ -57,12 +59,13 @@ public class Message implements Serializable {
 			e.printStackTrace();
 		}
 	
+		this.s
 		return serializedMessage;
 	}
 	
 	public static void main(String args[]){
 		EventLog eL = new EventLog();
-		TimeTable tt = new TimeTable();
+		TimeTable tt = new TimeTable(0);
 		
 		tt.test_updateEntry(0, 10);
 		tt.test_updateEntry(3, 4);
