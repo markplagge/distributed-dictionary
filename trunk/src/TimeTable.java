@@ -6,8 +6,10 @@ import java.lang.Math;
 public class TimeTable implements Serializable {
 
 	private int[][] timeTable;
+	private int node_id;
 	
-	public TimeTable() {
+	public TimeTable(int id) {
+		node_id = id;
 		timeTable = new int[Constants.NUM_OF_NODES][Constants.NUM_OF_NODES];
 		
 		for (int i = 0; i < Constants.NUM_OF_NODES; i++) {
@@ -37,7 +39,7 @@ public class TimeTable implements Serializable {
 		//update partial log
 	}
 	
-	public void updateLocalEntry(int node_id, Clock c) {
+	public void updateLocalEntry(Clock c) {
 		timeTable[node_id][node_id] = c.getClock();
 	}
 	
@@ -64,20 +66,20 @@ public class TimeTable implements Serializable {
 		//bad test since the value of clock is static
 		Clock c0 = new Clock();
 		Clock c1 = new Clock();
-		TimeTable tt0 = new TimeTable();
-		TimeTable tt1 = new TimeTable();
+		TimeTable tt0 = new TimeTable(0);
+		TimeTable tt1 = new TimeTable(3);
 		
 //		System.out.println(tt0.toString());
 //		System.out.println(tt1.toString());
 		
-		tt0.updateLocalEntry(0, c0);
-		tt0.updateLocalEntry(0, c0);
-		tt0.updateLocalEntry(0, c0);
+		tt0.updateLocalEntry(c0);
+		tt0.updateLocalEntry(c0);
+		tt0.updateLocalEntry(c0);
 		
-		tt1.updateLocalEntry(3, c1);
-		tt1.updateLocalEntry(3, c1);
-		tt1.updateLocalEntry(3, c1);
-		tt1.updateLocalEntry(3, c1);
+		tt1.updateLocalEntry(c1);
+		tt1.updateLocalEntry(c1);
+		tt1.updateLocalEntry(c1);
+		tt1.updateLocalEntry(c1);
 
 //		System.out.println(tt0.toString());
 //		System.out.println(tt1.toString());
