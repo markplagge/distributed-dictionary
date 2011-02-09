@@ -1,12 +1,19 @@
 package controller;
-import common.*;
+import java.io.Serializable;
+
+import common.Constants;
 import common.Constants.EventType;
 
 /*
  * Represents an event record in the partial log that has the following properties
  */
-public class EventRecord implements Cloneable {
+public class EventRecord implements Cloneable, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1784107304055097219L;
+	
 	//Key in the key-value pair
 	private String key;
 	public void setKey(String key) {

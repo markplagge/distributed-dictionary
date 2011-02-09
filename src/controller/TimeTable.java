@@ -6,6 +6,11 @@ import java.lang.Math;
 
 public class TimeTable implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8063075524218780397L;
+	
 	private int[][] timeTable;
 	private int node_id;
 	

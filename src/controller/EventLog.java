@@ -11,6 +11,11 @@ import common.Constants.EventType;
  */
 public class EventLog implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6965204047590764864L;
+	
 	// List of all events
 	private List<EventRecord> listOfRecords;
 
