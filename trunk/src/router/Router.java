@@ -25,7 +25,6 @@ public class Router {
 	 * link status table
 	 * key: destination node id
 	 * 			0-4 - client nodes
-	 * 			  5 - file server 
 	 * value: link status
 	 * 			0 - good
 	 * 			1 - hold
@@ -36,7 +35,7 @@ public class Router {
 	// mapping between node id and it's IP address
     static Hashtable<Integer, String> routing_table = new Hashtable<Integer, String>();	
     
-    static Hashtable<Integer, LinkedList<String>> hold_queue = new Hashtable<Integer, LinkedList<String>>();
+    static Hashtable<Integer, LinkedList<byte[]>> hold_queue = new Hashtable<Integer, LinkedList<byte[]>>();
     
     static DatagramSocket serverSocket;
     private static int destination_port;
@@ -44,10 +43,6 @@ public class Router {
     public Router(String initial_ip_addresses) throws IOException {
     	logger = Logger.getLogger(Router.class);
 		PropertyConfigurator.configure(Constants.LOG_CONFIG);
-		
-		int router_port = 9999;
-		int client_port= 9998;
-		int fs_port = 9997;
 		
 		boolean cont = true;
 		
@@ -59,27 +54,11 @@ public class Router {
 		link_status.put(5, 0);
 		
 		String[] ipAddresses = initial_ip_addresses.split(Constants.FIELD_SEPARATOR+"");
-				
-//	    routing_table.put(0, "127.0.0.1");
-//	    routing_table.put(1, "127.0.0.1");
-//	    routing_table.put(2, "127.0.0.1");
-//	    routing_table.put(3, "127.0.0.1");
-//	    routing_table.put(4, "127.0.0.1");
-//	    routing_table.put(5, "127.0.0.1");
 	    
-	    routing_table.put(0, ipAddresses[0]);
-	    routing_table.put(1, ipAddresses[1]);
-	    routing_table.put(2, ipAddresses[2]);
-	    routing_table.put(3, ipAddresses[3]);
-	    routing_table.put(4, ipAddresses[4]);
-	    routing_table.put(5, ipAddresses[5]);
-		
-	    hold_queue.put(0, new LinkedList<String>());
-	    hold_queue.put(1, new LinkedList<String>());
-	    hold_queue.put(2, new LinkedList<String>());
-	    hold_queue.put(3, new LinkedList<String>());
-	    hold_queue.put(4, new LinkedList<String>());
-	    hold_queue.put(5, new LinkedList<String>());
+		for(int nodeId=0;nodeId<Constants.NUM_OF_NODES;nodeId++){
+			routing_table.put(nodeId, ipAddresses[nodeId]);
+			hold_queue.put(nodeId, new LinkedList<byte[]>());
+		}
 	    
 		logger.info("Starting up the router");
 		
@@ -88,11 +67,11 @@ public class Router {
 		routerUI.setSize(500, 350);
 		routerUI.setVisible(true);
 		
-		serverSocket = new DatagramSocket(router_port);
+		serverSocket = new DatagramSocket(Constants.DEFAULT_ROUTER_PORT);
 		
 		while(cont) {
 	    	//create an array of bytes
-	    	byte[] receiveData = new byte[1024];
+	    	byte[] receiveData = new byte[Constants.MAX_MSG_SIZE];
 	    	String payload;
 	    	
 	    	//prepare a place for incoming packet
@@ -101,31 +80,24 @@ public class Router {
 	    	//receive a packet and put it in receivePacket
 	    	serverSocket.receive(receivePacket);
 	    	
-	    	//payload is a string in the form of two integers followed by the data (we can assume that the integer is between 0 and 9) separated by colon	    	
-	    	payload = new String(receivePacket.getData(), 0, receivePacket.getLength());
-	    	String[] payloadParts = payload.split(Constants.FIELD_SEPARATOR+"");	    	
 	    	
-	    	int destination_id = Integer.valueOf(payloadParts[1]);
+	    	int destination_id=receiveData[1];
 	    	
-	    	String data = payloadParts[2];
 	    	
 	    	int destination_status = link_status.get(destination_id);	    	    	
 	    	
-	    	if (destination_id == 5) {
-	    		destination_port = fs_port;
-	    	} else {
-	    		destination_port = client_port;
-	    	}
+	    	destination_port = Constants.DEFAULT_CLIENT_PORT;
+	    	
 
-	    	logger.info("Received packet to: " + destination_id + " with data: " + data);
+	    	logger.info("Received packet to: " + destination_id);
 	    	
 	    	if (destination_status == common.Constants.LINK_GOOD) {
 	    		
-	    		forwardPacket(destination_id, payload);
+	    		forwardPacket(destination_id, receiveData);
 	    		
 	    	} else if (destination_status == common.Constants.LINK_HOLD) {
 	    		
-	    		enqueuePacket(destination_id, payload);
+	    		enqueuePacket(destination_id, receiveData);
 	    		
 	    	} else if (destination_status == common.Constants.LINK_DROP) {
 	    		
@@ -136,13 +108,11 @@ public class Router {
  		}
     }
     
-	public static void forwardPacket(int destination_id, String payload) throws IOException {
+	public static void forwardPacket(int destination_id, byte[] sendData) throws IOException {
 	    String target=destination_id +" -> " + routing_table.get(destination_id);
 	    logger.info("Forwarding packet to: " + target);
-    	byte[] sendData = new byte[1024];
-    	sendData = payload.getBytes();		    		        
-        
-        //get destination IP address
+	    
+	    //get destination IP address
         InetAddress destination_ip = InetAddress.getByName((String)routing_table.get(destination_id));
         
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, destination_ip, destination_port);
@@ -150,22 +120,22 @@ public class Router {
         serverSocket.send(sendPacket);
 	}
 	
-	public void enqueuePacket(int destination_id, String payload) {
+	public void enqueuePacket(int destination_id, byte[] sendData) {
 		String target=destination_id +" -> " + routing_table.get(destination_id);
 		logger.info("Holding packet to: " + target);
 		
-		hold_queue.get(destination_id).add(payload);
+		hold_queue.get(destination_id).add(sendData);
 		debugQueue();
 	}
 	
 	public static void releaseHold(int destination_id) throws IOException {
 		link_status.put(destination_id, 0);
 		
-		ListIterator<String> iter = hold_queue.get(destination_id).listIterator(0);
+		ListIterator<byte[]> iter = hold_queue.get(destination_id).listIterator(0);
 		
 		while(iter.hasNext()) {
-			String payload = iter.next();
-			forwardPacket(destination_id, payload);			
+			byte[] sendData = iter.next();
+			forwardPacket(destination_id, sendData);			
 		}
 		
 		hold_queue.get(destination_id).clear();
@@ -189,11 +159,10 @@ public class Router {
 			
 			System.out.print("Destination: " + key + ";  ");
 			
-			ListIterator<String> iter = hold_queue.get(key).listIterator(0);
+			ListIterator<byte[]> iter = hold_queue.get(key).listIterator(0);
 			
 			while(iter.hasNext()) {
-				String payload = iter.next();
-				System.out.print(payload + ", ");
+				byte[] sendData = iter.next();				
 			}
 			
 			System.out.println("");
