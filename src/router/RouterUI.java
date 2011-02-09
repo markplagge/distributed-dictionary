@@ -1,5 +1,6 @@
 package router;
 
+import common.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,8 +9,6 @@ import java.io.IOException;
 import javax.swing.*;
 
 public class RouterUI extends JFrame implements ActionListener {
-
-	private int number_of_nodes = 5;
 
 	private JPanel fullContainer;
 	private JPanel mainPanel;
@@ -31,7 +30,7 @@ public class RouterUI extends JFrame implements ActionListener {
 	private final String label_names[] = { "Node", "good", "hold", "drop",
 			"IP address", "port number" };
 	private final String node_names[] = { "node 0", "node 1", "node 2",
-			"node 3", "node 4", "FS" };
+			"node 3", "node 4"};
 
 	private JButton apply_button;
 
@@ -53,8 +52,6 @@ public class RouterUI extends JFrame implements ActionListener {
 		labelsPanel.setLayout(labelsLayout);
 		labelsPanel.add(new JLabel("  Node  "));
 		labelsPanel.add(new JLabel("Good/Hold/Drop"));
-		// labelsPanel.add(new JLabel("Hold"));
-		// labelsPanel.add(new JLabel("Drop "));
 		labelsPanel.add(new JLabel("      IP Address   "));
 		labelsPanel.add(new JLabel("       Port "));
 
@@ -65,63 +62,34 @@ public class RouterUI extends JFrame implements ActionListener {
 		nodesPanel.setLayout(new GridLayout(node_names.length, 1, 1, 8));
 
 		statusPanel = new JPanel();
-		statusPanel.setLayout(new GridLayout(number_of_nodes, 1));
+		statusPanel.setLayout(new GridLayout(Constants.NUM_OF_NODES, 1));
 
 		ipPanel = new JPanel();
-		ipPanel.setLayout(new GridLayout(number_of_nodes, 1));
+		ipPanel.setLayout(new GridLayout(Constants.NUM_OF_NODES, 1));
 
 		portPanel = new JPanel();
-		portPanel.setLayout(new GridLayout(number_of_nodes, 1));
+		portPanel.setLayout(new GridLayout(Constants.NUM_OF_NODES, 1));
 
 		setLayout(new FlowLayout());
 
-		configRows = new ConfigRow[number_of_nodes + 1];
+		configRows = new ConfigRow[Constants.NUM_OF_NODES + 1];
 
 		labels = new JLabel[label_names.length];
 		nodes = new JLabel[node_names.length];
-		statusButtons = new StatusRadioButtons[number_of_nodes];
-		ip_addresses = new JTextField[number_of_nodes];
-		ports = new JTextField[number_of_nodes];
-
-		for (int i = 0; i < node_names.length; i++) {
-			nodes[i] = new JLabel(node_names[i]);
-			nodesPanel.add(nodes[i]);
-		}
-
-		// add(nodesPanel);
-
-		for (int i = 0; i < number_of_nodes; i++) {
-			statusButtons[i] = new StatusRadioButtons();
-			statusPanel.add(statusButtons[i].getStatusPanel());
-
-			ip_addresses[i] = new JTextField(10);
-			ipPanel.add(ip_addresses[i]);
-
-			ports[i] = new JTextField(3);
-			portPanel.add(ports[i]);
-		}
-
-		// add(statusPanel);
-		// add(ipPanel);
-		// add(portPanel);
+		statusButtons = new StatusRadioButtons[Constants.NUM_OF_NODES];
+		ip_addresses = new JTextField[Constants.NUM_OF_NODES];
+		ports = new JTextField[Constants.NUM_OF_NODES];
 
 		// fill mainPanel using ConfigRows
-		for (int i = 0; i < number_of_nodes; i++) {
+		for (int i = 0; i < Constants.NUM_OF_NODES; i++) {
 			configRows[i] = new ConfigRow(node_names[i], ipAddresses_args[i]);
 			mainPanel.add(configRows[i].getConfigRow());
 		}
-
-		mainPanel.add((new ConfigRow("    FS   ",
-				ipAddresses_args[ipAddresses_args.length - 1])).getConfigRow());
 
 		fullContainer.add(labelsPanel);
 		fullContainer.add(mainPanel);
 		fullContainer.add(apply_button);
 		add(fullContainer);
-
-		// add(labelsPanel);
-		// add(mainPanel);
-		// add(apply_button);
 	}
 
 	public class StatusRadioButtons {
@@ -224,7 +192,7 @@ public class RouterUI extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent arg0) {
 		System.out.println("Applying changes...");
 
-		for (int i = 0; i < number_of_nodes; i++) {
+		for (int i = 0; i < Constants.NUM_OF_NODES; i++) {
 			int new_status = configRows[i].getLinkStatus();
 			try {
 				Router.changeLinkStatus(i, new_status);
@@ -232,7 +200,6 @@ public class RouterUI extends JFrame implements ActionListener {
 				e.printStackTrace();
 			}
 		}
-
 	}
 
 }
