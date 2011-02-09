@@ -4,6 +4,7 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -108,9 +109,19 @@ public class Controller {
 		this.clientSocket = clientSocket;
 	}
 
-	// TODO: Implement this
 	private synchronized Message generateMessage(int destinationId) {
-		Message aMsg = new Message(this.anEventLog, this.aTimeTable,
+		
+		EventLog newPartialLog = new EventLog();
+		
+		List<EventRecord> newList = this.anEventLog.getAllRecords();
+		
+		for(EventRecord eR: newList) {
+			if(!this.aTimeTable.hasrec(eR, destinationId)) {
+				newPartialLog.addRecord(eR);
+			}
+		}
+		
+		Message aMsg = new Message(newPartialLog, this.aTimeTable,
 				this.getClientId(), destinationId);
 		return aMsg;
 	}
