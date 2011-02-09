@@ -1,4 +1,5 @@
 package controller;
+
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -12,59 +13,57 @@ import common.Constants;
 
 public class Controller {
 
-	//Event log for this client
+	// Event log for this client
 	private EventLog anEventLog;
-	
-	//Time table for this client
+
+	// Time table for this client
 	private TimeTable aTimeTable;
-	
-	//Clock for this client
+
+	// Clock for this client
 	private Clock aClock;
-	
-	//Local dictionary
-	private Map< String, String > aDictionary;
-	
+
+	// Local dictionary
+	private Map<String, String> aDictionary;
+
 	// ID of client connected to this Controller
 	private int clientId;
 
 	// Socket object to be used for communication
 	private DatagramSocket clientSocket;
 
-	//IP address of the router to which messages should be sent
+	// IP address of the router to which messages should be sent
 	private String routerIp;
 
-	//Port at which the router will listen for messages
+	// Port at which the router will listen for messages
 	private int routerPort;
 
-	
 	// Sends messages to the router
 	private Sender aSender;
 
 	// Receives messages asynchronously from the router
 	private Receiver aReceiver;
 
-	
 	// log4j Logger
 	private static Logger logger = null;
 
-	public Controller(int clientId){
-		this.aClock=new Clock();
-		this.anEventLog=new EventLog();
-		this.aTimeTable=new TimeTable(clientId);
-		this.aDictionary=new HashMap<String, String>();
+	public Controller(int clientId) {
+		this.aClock = new Clock();
+		this.anEventLog = new EventLog();
+		this.aTimeTable = new TimeTable(clientId);
+		this.aDictionary = new HashMap<String, String>();
 	}
-	
+
 	public Controller(String routerIp, int routerPort, int clientId,
-			DatagramSocket clientSocket) throws SocketException, UnknownHostException {
-		
+			DatagramSocket clientSocket) throws SocketException,
+			UnknownHostException {
+
 		this(clientId);
-		
-		
+
 		this.setClientId(clientId);
 		this.setClientSocket(clientSocket);
 		this.setRouterIp(routerIp);
 		this.setRouterPort(routerPort);
-		
+
 		PropertyConfigurator.configure(Constants.LOG_CONFIG);
 		logger = Logger.getLogger(Controller.class);
 
@@ -80,19 +79,18 @@ public class Controller {
 	private int getRouterPort() {
 		return this.routerPort;
 	}
-	
+
 	private void setRouterPort(int routerPort) {
 		this.routerPort = routerPort;
 	}
 
-	private String getRouterIp() {		
+	private String getRouterIp() {
 		return this.routerIp;
 	}
-	
+
 	private void setRouterIp(String routerIp) {
 		this.routerIp = routerIp;
 	}
-	
 
 	private int getClientId() {
 		return clientId;
@@ -105,43 +103,72 @@ public class Controller {
 	private DatagramSocket getClientSocket() {
 		return clientSocket;
 	}
-	
+
 	private void setClientSocket(DatagramSocket clientSocket) {
 		this.clientSocket = clientSocket;
 	}
-	
-	//TODO: Implement this
-	private synchronized Message generateMessage(int destinationId){
-		Message aMsg = new Message(this.anEventLog, this.aTimeTable, this.getClientId(), destinationId);
+
+	// TODO: Implement this
+	private synchronized Message generateMessage(int destinationId) {
+		Message aMsg = new Message(this.anEventLog, this.aTimeTable,
+				this.getClientId(), destinationId);
 		return aMsg;
 	}
-	
-	public synchronized boolean sendMessage(int destinationId){
-		Message generatedMsg=this.generateMessage(destinationId);
+
+	public synchronized boolean sendMessage(int destinationId) {
+		Message generatedMsg = this.generateMessage(destinationId);
 		return this.aSender.queueMessage(generatedMsg);
 	}
-	
-	private synchronized void insert(String key, String value){
-		int newClockValue = aClock.getClock();
-		this.aTimeTable.updateLocalEntry(newClockValue);
-		EventRecord record = new EventRecord(key, value, Constants.EventType.INSERT, newClockValue, this.clientId);
-		this.anEventLog.addRecord(record);
-		this.aDictionary.put(key, value);
+
+	private synchronized void insert(String key, String value) {
+		if (!this.aDictionary.containsKey(key)) {
+			int newClockValue = aClock.getClock();
+			this.aTimeTable.updateLocalEntry(newClockValue);
+			EventRecord record = new EventRecord(key, value,
+					Constants.EventType.INSERT, newClockValue, this.clientId);
+			this.anEventLog.addRecord(record);
+			this.aDictionary.put(key, value);
+			this.logger.info("Inserted : {" + key
+					+ Constants.Commands.KEY_VALUE_SEPARATOR + value
+					+ "} at time : " + newClockValue);
+		} else {
+			this.logger.info("Cannot insert : {" + key
+					+ Constants.Commands.KEY_VALUE_SEPARATOR + value
+					+ "} as key already exists");
+
+		}
+
 	}
-	
-	public synchronized void insert(String keyValueStr){
-		String[] keyValue=keyValueStr.split(""+Constants.Commands.KEY_VALUE_SEPARATOR);
+
+	public synchronized void insert(String keyValueStr) {
+		String[] keyValue = keyValueStr.split(""
+				+ Constants.Commands.KEY_VALUE_SEPARATOR);
+
 		this.insert(keyValue[0], keyValue[1]);
+
 	}
-	
-	public synchronized void delete(String key){
-		int newClockValue = aClock.getClock();
-		this.aTimeTable.updateLocalEntry(newClockValue);
-		EventRecord record = new EventRecord(key, this.aDictionary.get(key), Constants.EventType.DELETE, newClockValue, this.clientId);
-		this.anEventLog.addRecord(record);
-		this.aDictionary.remove(key);
+
+	public synchronized void delete(String key) {
+
+		if (aDictionary.containsKey(key)) {
+			int newClockValue = aClock.getClock();
+			this.aTimeTable.updateLocalEntry(newClockValue);
+			EventRecord record = new EventRecord(key,
+					this.aDictionary.get(key), Constants.EventType.DELETE,
+					newClockValue, this.clientId);
+			this.anEventLog.addRecord(record);
+			String deletedValue = this.aDictionary.remove(key);
+
+			this.logger.info("Deleted : {" + key
+					+ Constants.Commands.KEY_VALUE_SEPARATOR + deletedValue
+					+ "} at time : " + newClockValue);
+		} else {
+			this.logger.info("Cannot delete key : {" + key
+					+ Constants.Commands.KEY_VALUE_SEPARATOR
+					+ "} as it doesnt exist");
+		}
 	}
-	
+
 	public synchronized String getDictionary() {
 		return this.aDictionary.toString();
 	}
