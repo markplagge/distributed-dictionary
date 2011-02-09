@@ -18,6 +18,8 @@ public class Controller {
 	//Time table for this client
 	private TimeTable aTimeTable;
 	
+	//Clock for this client
+	private Clock aClock;
 	
 	//Local dictionary
 	private Map< String, String > aDictionary;
@@ -46,6 +48,7 @@ public class Controller {
 	private static Logger logger = null;
 
 	public Controller(int clientId){
+		this.aClock=new Clock();
 		this.anEventLog=new EventLog();
 		this.aTimeTable=new TimeTable(clientId);
 		this.aDictionary=new HashMap<String, String>();
@@ -111,14 +114,18 @@ public class Controller {
 	private synchronized Message generateMessage(int destinationId){
 		return null;
 	}
+	
 	public synchronized boolean sendMessage(int destinationId){
 		Message generatedMsg=this.generateMessage(destinationId);
 		return this.aSender.queueMessage(generatedMsg);
 	}
 	
-	//TODO : Implement this
 	private synchronized void insert(String key, String value){
-		
+		int newClockValue = aClock.getClock();
+		this.aTimeTable.updateLocalEntry(newClockValue);
+		EventRecord record = new EventRecord(key, value, Constants.EventType.INSERT, newClockValue, this.clientId);
+		this.anEventLog.addRecord(record);
+		this.aDictionary.put(key, value);
 	}
 	
 	public synchronized void insert(String keyValueStr){
@@ -126,10 +133,16 @@ public class Controller {
 		this.insert(keyValue[0], keyValue[1]);
 	}
 	
-	
-	//TODO : Implement this
 	public synchronized void delete(String key){
-		
+		int newClockValue = aClock.getClock();
+		this.aTimeTable.updateLocalEntry(newClockValue);
+		EventRecord record = new EventRecord(key, this.aDictionary.get(key), Constants.EventType.DELETE, newClockValue, this.clientId);
+		this.anEventLog.addRecord(record);
+		this.aDictionary.remove(key);
+	}
+	
+	public synchronized String getDictionary() {
+		return this.aDictionary.toString();
 	}
 
 }
