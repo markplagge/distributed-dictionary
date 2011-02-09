@@ -96,7 +96,17 @@ public class Message implements Serializable {
 		return "{ "+this.getSourceId()+" -> "+this.getDestinationId()+" }";
 	}
 	
-	
+	public String getVerboseDescription(){
+		StringBuffer strBuffer=new StringBuffer();
+		strBuffer.append("{");
+		strBuffer.append("\nSource ID : "+this.getSourceId());
+		strBuffer.append("\nDestn  ID : "+this.getDestinationId());
+		strBuffer.append("\nTime Table : \n"+this.getTimeTable().toString());
+		strBuffer.append("\nEvent Log : \n"+this.getEvenLog().toString());
+		strBuffer.append("}\n");
+		
+		return strBuffer.toString();
+	}
 	
 	public static void main(String args[]){
 		EventLog eL = new EventLog();

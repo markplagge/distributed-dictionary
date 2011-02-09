@@ -63,7 +63,7 @@ class Receiver implements Runnable {
 			}
 			
 			Message receivedMessage = new Message(aPacket.getData());
-			logger.info("Received from the router : "+receivedMessage);
+			logger.info("Received from the router : \n"+receivedMessage.getVerboseDescription());
 		}
 
 	}

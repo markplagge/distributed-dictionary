@@ -98,24 +98,17 @@ public class Client {
 	}
 
 	private void executeCommand(String command){
-		String[] cmdsData=command.split(Constants.Commands.COMMAND_DATA_SEPARATOR);
+		String[] cmdsData=command.split(""+Constants.Commands.COMMAND_DATA_SEPARATOR);
 		String justTheCommand = cmdsData[0];
 
 		if(justTheCommand.toLowerCase().equals("send")){
-			int destinationId=Integer.parseInt(cmdsData[1]);
-			Message aMsg=generateMessage(destinationId);
-			this.controller.sendMessage(aMsg);
+			int destinationId=Integer.parseInt(cmdsData[1]);			
+			this.controller.sendMessage(destinationId);
 		}
 
 	}
-	private Message generateMessage(int destinationId){
-		EventLog el=new EventLog();
-		TimeTable tt=new TimeTable(this.getId());
-		
-		Message aMessage=new Message(el, tt, this.getId(), destinationId);
-		
-		return aMessage;
-	}
+	
+	
 	public static void main(String[] args) throws IOException {
 
 		// validate command-line args

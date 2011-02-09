@@ -19,7 +19,8 @@ public interface Constants {
 	int NUM_OF_NODES = 5;
 	
 	interface Commands {
-		String COMMAND_DATA_SEPARATOR=" ";
+		char COMMAND_DATA_SEPARATOR=' ';
+		char KEY_VALUE_SEPARATOR=FIELD_SEPARATOR;
 	}
 	enum EventType { INSERT, DELETE};
 }
