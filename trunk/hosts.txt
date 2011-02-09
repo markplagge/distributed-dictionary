@@ -1,4 +1,4 @@
 Router : 128.111.43.36 (snoopy)
 
-Clients : 128.111.43.29:128.111.43.53:128.111.43.55:128.111.43.64:128.111.43.30
-           (pinky)          (bugs)        (beavis)      (booboo)          (brain)
+Clients : 128.111.43.54:128.111.43.42:128.111.43.55:128.111.43.26:128.111.43.30
+          (marge)      (megatron)     (beavis)      (blondie)      (brain)

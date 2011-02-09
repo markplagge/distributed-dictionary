@@ -16,6 +16,9 @@ import common.Constants;
 
 class Receiver implements Runnable {
 
+	//back pointer to the controller that manages this receiver thread
+	private Controller theController;
+	
 	// max message size
 	private int messageMaxSize;	
 
@@ -27,7 +30,7 @@ class Receiver implements Runnable {
 	
 	private static Logger logger = null;	
 	
-	public Receiver(DatagramSocket socket, int messageMaxSize)
+	public Receiver(DatagramSocket socket, int messageMaxSize, Controller theController)
 			throws SocketException {
 		Receiver.logger = Logger.getLogger(Controller.class);
 		PropertyConfigurator.configure(Constants.LOG_CONFIG);
@@ -35,6 +38,7 @@ class Receiver implements Runnable {
 		
 		this.messageMaxSize = messageMaxSize;
 		this.socket = socket;
+		this.theController = theController;
 		this.aThread = new Thread(this);
 		this.aThread.setName("ReceiverThread");
 		this.aThread.start();
@@ -64,6 +68,9 @@ class Receiver implements Runnable {
 			
 			Message receivedMessage = new Message(aPacket.getData());
 			logger.info("Received from the router : \n"+receivedMessage.getVerboseDescription());
+			
+			this.theController.receiveMessage(receivedMessage);
+			
 		}
 
 	}
