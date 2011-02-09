@@ -101,8 +101,8 @@ class Sender implements Runnable {
 		// sends packet to the router
 		this.socket.send(aPacket);
 
-		logger.info("Sent message to router -> \""
-				+ aMessage + "\"");
+		logger.info("Sent message to router -> \n"
+				+ aMessage.getVerboseDescription() );
 	}
 
 }

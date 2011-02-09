@@ -2,6 +2,8 @@ package controller;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -10,6 +12,16 @@ import common.Constants;
 
 public class Controller {
 
+	//Event log for this client
+	private EventLog anEventLog;
+	
+	//Time table for this client
+	private TimeTable aTimeTable;
+	
+	
+	//Local dictionary
+	private Map< String, String > aDictionary;
+	
 	// ID of client connected to this Controller
 	private int clientId;
 
@@ -33,8 +45,18 @@ public class Controller {
 	// log4j Logger
 	private static Logger logger = null;
 
+	public Controller(int clientId){
+		this.anEventLog=new EventLog();
+		this.aTimeTable=new TimeTable(clientId);
+		this.aDictionary=new HashMap<String, String>();
+	}
+	
 	public Controller(String routerIp, int routerPort, int clientId,
 			DatagramSocket clientSocket) throws SocketException, UnknownHostException {
+		
+		this(clientId);
+		
+		
 		this.setClientId(clientId);
 		this.setClientSocket(clientSocket);
 		this.setRouterIp(routerIp);
@@ -85,8 +107,29 @@ public class Controller {
 		this.clientSocket = clientSocket;
 	}
 	
-	public boolean sendMessage(Message aMessage){
-		return this.aSender.queueMessage(aMessage);
+	//TODO: Implement this
+	private synchronized Message generateMessage(int destinationId){
+		return null;
+	}
+	public synchronized boolean sendMessage(int destinationId){
+		Message generatedMsg=this.generateMessage(destinationId);
+		return this.aSender.queueMessage(generatedMsg);
+	}
+	
+	//TODO : Implement this
+	private synchronized void insert(String key, String value){
+		
+	}
+	
+	public synchronized void insert(String keyValueStr){
+		String[] keyValue=keyValueStr.split(""+Constants.Commands.KEY_VALUE_SEPARATOR);
+		this.insert(keyValue[0], keyValue[1]);
+	}
+	
+	
+	//TODO : Implement this
+	public synchronized void delete(String key){
+		
 	}
 
 }
