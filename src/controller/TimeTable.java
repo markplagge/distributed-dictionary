@@ -49,6 +49,14 @@ public class TimeTable implements Serializable {
 		timeTable[node_id][node_id] = newClockValue;
 	}
 	
+	public boolean hasrec(EventRecord eR, int destinationId) {
+		if (this.timeTable[destinationId][eR.getNodeId()] >= eR.getTimeStamp()) {
+			return true;
+		}
+		
+		return false;
+	}
+	
 	public void test_updateEntry(int node_id, int value) {
 		timeTable[node_id][node_id] = value;
 	}
