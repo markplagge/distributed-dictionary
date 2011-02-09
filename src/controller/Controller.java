@@ -11,11 +11,12 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import common.Constants;
+import common.Constants.EventType;
 
 public class Controller {
 
 	// Event log for this client
-	private EventLog anEventLog;
+	private volatile EventLog anEventLog;
 
 	// Time table for this client
 	private TimeTable aTimeTable;
@@ -74,7 +75,7 @@ public class Controller {
 
 		// Starting thread to receive data from other clients / router
 		this.aReceiver = new Receiver(clientSocket,
-				common.Constants.MAX_MSG_SIZE);
+				common.Constants.MAX_MSG_SIZE, this);
 	}
 
 	private int getRouterPort() {
@@ -110,35 +111,34 @@ public class Controller {
 	}
 
 	private synchronized Message generateMessage(int destinationId) {
-		
+
 		EventLog newPartialLog = new EventLog();
-		
+
 		List<EventRecord> newList = this.anEventLog.getAllRecords();
-		
-		for(EventRecord eR: newList) {
-			if(!this.aTimeTable.hasrec(eR, destinationId)) {
+
+		for (EventRecord eR : newList) {
+			if (!this.aTimeTable.hasrec(eR, destinationId)) {
 				newPartialLog.addRecord(eR);
 			}
 		}
-		
+
 		Message aMsg = new Message(newPartialLog, this.aTimeTable,
 				this.getClientId(), destinationId);
 		return aMsg;
 	}
 
-	public synchronized boolean sendMessage(int destinationId) {
-		Message generatedMsg = this.generateMessage(destinationId);
-		return this.aSender.queueMessage(generatedMsg);
+	public synchronized void insert(String key, String value) {
+		this.aDictionary.put(key, value);
 	}
 
-	private synchronized void insert(String key, String value) {
+	private synchronized void insertAndLog(String key, String value) {
 		if (!this.aDictionary.containsKey(key)) {
 			int newClockValue = aClock.getClock();
 			this.aTimeTable.updateLocalEntry(newClockValue);
 			EventRecord record = new EventRecord(key, value,
 					Constants.EventType.INSERT, newClockValue, this.clientId);
 			this.anEventLog.addRecord(record);
-			this.aDictionary.put(key, value);
+			this.insert(key, value);
 			this.logger.info("Inserted : {" + key
 					+ Constants.Commands.KEY_VALUE_SEPARATOR + value
 					+ "} at time : " + newClockValue);
@@ -151,15 +151,19 @@ public class Controller {
 
 	}
 
-	public synchronized void insert(String keyValueStr) {
+	public synchronized void insertAndLog(String keyValueStr) {
 		String[] keyValue = keyValueStr.split(""
 				+ Constants.Commands.KEY_VALUE_SEPARATOR);
 
-		this.insert(keyValue[0], keyValue[1]);
+		this.insertAndLog(keyValue[0], keyValue[1]);
 
 	}
 
-	public synchronized void delete(String key) {
+	public synchronized String delete(String key) {
+		return this.aDictionary.remove(key);
+	}
+
+	public synchronized void deleteAndLog(String key) {
 
 		if (aDictionary.containsKey(key)) {
 			int newClockValue = aClock.getClock();
@@ -168,7 +172,7 @@ public class Controller {
 					this.aDictionary.get(key), Constants.EventType.DELETE,
 					newClockValue, this.clientId);
 			this.anEventLog.addRecord(record);
-			String deletedValue = this.aDictionary.remove(key);
+			String deletedValue = this.delete(key);
 
 			this.logger.info("Deleted : {" + key
 					+ Constants.Commands.KEY_VALUE_SEPARATOR + deletedValue
@@ -184,4 +188,91 @@ public class Controller {
 		return this.aDictionary.toString();
 	}
 
+	private synchronized void filterDictionary(EventLog filteredLog) {
+		List<EventRecord> deleteRecords = filteredLog
+				.getRecords(Constants.EventType.DELETE);
+		for (EventRecord eR : filteredLog.getAllRecords()) {
+			String key = eR.getKey();
+
+			if (this.aDictionary.containsKey(key) && deleteRecords.contains(eR)) {
+				this.delete(key);
+			}
+
+			else if (eR.getEventType() == EventType.INSERT
+					&& !(deleteRecords.contains(eR))) {
+				this.insert(key, eR.getValue());
+			}
+		}
+	}
+
+	private EventLog filterReceivedLog(EventLog receivedLog) {
+		EventLog filteredLog = new EventLog();
+		for (EventRecord eR : receivedLog.getAllRecords()) {
+			if (!this.aTimeTable.hasrec(eR, this.getClientId())) {
+				filteredLog.addRecord(eR);
+			}
+		}
+
+		return filteredLog;
+	}
+
+	public synchronized void receiveMessage(Message newMessage) {
+		EventLog receivedLog = newMessage.getEvenLog();
+		TimeTable receivedTT = newMessage.getTimeTable();
+		int receivedFrom = newMessage.getSourceId();
+
+		EventLog filteredLog = this.filterReceivedLog(receivedLog);
+		this.filterDictionary(filteredLog);
+
+		this.aTimeTable.update(receivedTT, receivedFrom);
+		this.updateCurrentLog(filteredLog);
+
+		logger.info("Update successful");
+		logger.info("New partial log : \n\n" + this.anEventLog.toString());
+		logger.info("New time table : \n\n" + this.aTimeTable.toString());
+		logger.info("New dictionary : \n\n" + this.aDictionary.toString());
+	}
+
+	private void updateCurrentLog(EventLog filteredLog) {
+
+		EventLog newLog = new EventLog();
+
+		for (EventRecord eR : this.anEventLog.getAllRecords()) {
+			for (int nodeId = 0; nodeId < Constants.NUM_OF_NODES; nodeId++) {
+				if (!newLog.contains(eR) && !this.aTimeTable.hasrec(eR, nodeId)) {
+					newLog.addRecord(eR);
+				}
+			}
+		}
+
+		for (EventRecord eR : filteredLog.getAllRecords()) {
+			for (int nodeId = 0; nodeId < Constants.NUM_OF_NODES; nodeId++) {
+				if (!newLog.contains(eR) && !this.aTimeTable.hasrec(eR, nodeId)) {
+					newLog.addRecord(eR);
+				}
+			}
+		}
+
+		this.anEventLog = newLog;
+
+	}
+
+	public synchronized boolean sendMessage(int destinationId) {
+		Message generatedMsg = this.generateMessage(destinationId);
+		return this.aSender.queueMessage(generatedMsg);
+	}
+	
+	
+	public synchronized String getTimeTableString(){
+		return this.aTimeTable.toString();
+	}
+	
+	
+	public synchronized String getDictionaryString(){
+		return this.aDictionary.toString();
+	}
+	
+	public synchronized String getValue(String key){
+		return this.aDictionary.get(key);
+	}
 }

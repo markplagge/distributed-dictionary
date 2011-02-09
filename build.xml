@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<project name="cs271_gfs" basedir=".">
+<project name="cs271_dict" basedir=".">
     <description>
-        Builds, tests and runs the project.
+        Builds the project.
     </description>
     
     
@@ -14,27 +14,6 @@
     <property name="build" location="build/classes"/>  
     <property name="dist" location="dist"/>
     <property name="lib" location="lib"/>
-	
-    <!-- host names -->
-    <property name="host1" value="dudley.cs.ucsb.edu"/>
-    <property name="host2" value="blondie.cs.ucsb.edu"/>
-    <property name="host3" value="lisa.cs.ucsb.edu"/>
-    <property name="host4" value="butthead.cs.ucsb.edu"/>
-    <property name="host5" value="pinky.cs.ucsb.edu"/>
-    <property name="host6" value="yogi.cs.ucsb.edu"/>
-    <property name="host7" value="taz.cs.ucsb.edu"/>
-    <property name="host8" value="speed.cs.ucsb.edu"/>
-    <property name="host9" value="cartman.cs.ucsb.edu"/>
-    <property name="host10" value="kyle.cs.ucsb.edu"/>
-    <property name="host11" value="nat.cs.ucsb.edu"/>
-    <property name="host12" value="booboo.cs.ucsb.edu"/>
-    <property name="host13" value="beavis.cs.ucsb.edu"/>
-    <property name="host14" value="brain.cs.ucsb.edu"/>
-    <property name="host15" value="bugs.cs.ucsb.edu"/>
-    <property name="fileserver" value="linus.cs.ucsb.edu"/>    
-    <property name="router" value="snoopy.cs.ucsb.edu"/>
-    <property name="router_port" value="9999"/>
-	<property name="localhost" value="127.0.0.1"/>
 	
     <target name="clean" description="clean up">
         <!-- Delete the ${build} and ${dist} directory trees -->
@@ -61,42 +40,10 @@
         <!-- Create the distribution directory -->
         <mkdir dir="${dist}"/>
         
-        <!-- Make gfs.jar file -->
-        <jar jarfile="${dist}/gfs.jar" basedir="${build}" includes="fileserver/** common/** router/** client/** exceptions/**"/>
+        <!-- Make dict.jar file -->
+        <jar jarfile="${dist}/dict.jar" basedir="${build}" includes="controller/** common/** router/** client/** exceptions/** lib/** hosts.txt build.xml init.sh log_configuration.dat"/>
     </target>
     
-    
-    <target name="javadoc" description="create javadocs" depends="compile">
-        <javadoc packagenames="fileserver.*, common.*, router.*, exceptions.*" sourcepath="${src}" destdir="javadoc"/>
-    </target>
-	
-    
-    
-    <target name="runClient" depends="build" description="Runs a client">
-        
-        <!-- runs gfs client -->
-        <java classname="client.Client" fork="true">
-            <arg value="${router}"/>
-            <arg value="${router_port}"/>
-            <classpath>
-                <pathelement location="${dist}/gfs.jar"/>
-            </classpath>
-        </java>
-    </target>
-	
-	<target name="runLocalClient" depends="build" description="Runs a local GFS client">
-        
-        <!-- runs gfs client -->
-        <java classname="client.Client" fork="true">
-            <arg value="${localhost}"/>
-            <arg value="${router_port}"/>
-			<arg value="2"/>
-            <classpath>
-                <pathelement location="${dist}/gfs.jar"/>
-				<pathelement location="${lib}/log4j-1.2.16.jar"/>
-            </classpath>
-        </java>
-    </target>
     
     
     

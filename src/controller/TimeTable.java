@@ -29,7 +29,7 @@ public class TimeTable implements Serializable {
 		return timeTable;
 	}
 	
-	public void update(TimeTable newTimeTable, int node_id, int received_from) {
+	public void update(TimeTable newTimeTable, int received_from) {
 		int[][] new_timeTable = newTimeTable.getTimeTable();
 		
 		for (int I = 0; I < Constants.NUM_OF_NODES; I++) {
@@ -95,7 +95,7 @@ public class TimeTable implements Serializable {
 //		System.out.println(tt0.toString());
 //		System.out.println(tt1.toString());
 		
-		tt0.update(tt1, 0, 3);
+		tt0.update(tt1,  3);
 		System.out.println(tt0.toString());
 	}
 	

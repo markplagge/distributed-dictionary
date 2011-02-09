@@ -77,4 +77,13 @@ public class EventLog implements Serializable {
 		System.out.println(anEventLog);
 	}
 
+	public boolean contains(EventRecord eR) {
+		if(this.getAllRecords().contains(eR)){
+			return true;
+		}
+		
+		
+		return false;
+	}
+
 }

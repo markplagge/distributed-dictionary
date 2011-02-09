@@ -25,8 +25,12 @@ public interface Constants {
 		String[] INSERT_COMMANDS={"insert","i"};
 		String[] DELETE_COMMANDS={"delete","d"};
 		String[] SEND_COMMANDS={"send","s"};
+		String[] SHOW_DICT_COMMANDS = {"showdict","sd"};
+		String[] SHOW_TIMETABLE_COMMANDS = {"showtt","stt"};
+		String[] SHOW_VALUE_COMMANDS = {"showval","sv"};
 		char COMMAND_DATA_SEPARATOR=' ';
 		char KEY_VALUE_SEPARATOR=FIELD_SEPARATOR;
+		
 	}
 	enum EventType { INSERT, DELETE};
 }

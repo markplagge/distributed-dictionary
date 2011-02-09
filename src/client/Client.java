@@ -97,16 +97,32 @@ public class Client {
 		String[] cmdsData = command.split(""
 				+ Constants.Commands.COMMAND_DATA_SEPARATOR);
 		String justTheCommand = cmdsData[0].toLowerCase();
-		String data = cmdsData[1];
+		String data=null;
+		if (cmdsData.length > 1) {
+			data = cmdsData[1];
+		}
 
 		if (contains(Constants.Commands.INSERT_COMMANDS, justTheCommand)) {
-			this.controller.insert(data);
+			this.controller.insertAndLog(data);
 		} else if (contains(Constants.Commands.DELETE_COMMANDS, justTheCommand)) {
-			this.controller.delete(data);
+			this.controller.deleteAndLog(data);
 
 		} else if (contains(Constants.Commands.SEND_COMMANDS, justTheCommand)) {
 			int destinationId = Integer.parseInt(cmdsData[1]);
 			this.controller.sendMessage(destinationId);
+		} else if (contains(Constants.Commands.SHOW_DICT_COMMANDS,
+				justTheCommand)) {
+			logger.info("\n\nDictionary contents : \n\n"
+					+ this.controller.getDictionaryString() + "\n");
+		} else if (contains(Constants.Commands.SHOW_TIMETABLE_COMMANDS,
+				justTheCommand)) {
+			logger.info("\n\nDictionary contents : \n\n"
+					+ this.controller.getTimeTableString() + "\n");
+		} else if (contains(Constants.Commands.SHOW_VALUE_COMMANDS,
+				justTheCommand)) {
+			String key = cmdsData[1];
+			logger.info("\n\nValue for key : "+key+"\n\n"
+					+ this.controller.getValue(key) + "\n");
 		}
 
 	}
