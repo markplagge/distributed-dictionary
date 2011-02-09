@@ -1,6 +1,6 @@
 # Set client logger to client+stdout appender
 log4j.logger.client=DEBUG, client
-log4j.logger.fileserver=DEBUG, fileserver, stdout
+log4j.logger.controller=DEBUG, controller
 log4j.logger.router=DEBUG, router, stdout
 
 # client appender configuration
@@ -10,23 +10,23 @@ log4j.appender.stdout.layout.ConversionPattern=%d [%t] %p %c %x - %m%n
 
 # client log appender configuration
 log4j.appender.client=org.apache.log4j.FileAppender
-log4j.appender.client.file=/tmp/client_gfs.log
+log4j.appender.client.file=/tmp/client_dict.log
 log4j.appender.client.append=false
 log4j.appender.client.layout=org.apache.log4j.PatternLayout
 log4j.appender.client.layout.ConversionPattern=%d [%t] %p %c %x - %m%n
 
+
+# controller log appender configuration
+log4j.appender.controller=org.apache.log4j.FileAppender
+log4j.appender.controller.file=/tmp/controller_dict.log
+log4j.appender.controller.append=false
+log4j.appender.controller.layout=org.apache.log4j.PatternLayout
+log4j.appender.controller.layout.ConversionPattern=%d [%t] %p %c %x - %m%n
+
+
 # router log appender configuration
 log4j.appender.router=org.apache.log4j.FileAppender
-log4j.appender.router.file=/tmp/router_gfs.log
+log4j.appender.router.file=/tmp/router_dict.log
 log4j.appender.router.append=false
 log4j.appender.router.layout=org.apache.log4j.PatternLayout
 log4j.appender.router.layout.ConversionPattern=%d [%t] %p %c %x - %m%n
-
-
-# fileserver log appender configuration
-log4j.appender.fileserver=org.apache.log4j.FileAppender
-log4j.appender.fileserver.file=/tmp/fileserver_gfs.log
-log4j.appender.fileserver.append=false
-log4j.appender.fileserver.layout=org.apache.log4j.PatternLayout
-log4j.appender.fileserver.layout.ConversionPattern=%d [%t] %p %c %x - %m%n
-
