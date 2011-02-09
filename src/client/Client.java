@@ -15,20 +15,19 @@ import controller.Message;
 import controller.TimeTable;
 
 public class Client {
-	
+
 	private static final Object QUIT_CMD = "quit";
 	private static final String LOG_CONFIG = "log_configuration.dat";
 	private String routerIp;
 	private int routerPort;
 	private int id;
-	
+
 	private DatagramSocket clientSocket;
-	private Controller controller;	
-	
+	private Controller controller;
+
 	private static Logger logger = null;
 
-	public Client(String routerIp, int routerPort, int id)
-			throws IOException {
+	public Client(String routerIp, int routerPort, int id) throws IOException {
 		this.setRouterIp(routerIp);
 		this.setRouterPort(routerPort);
 		this.setId(id);
@@ -38,8 +37,9 @@ public class Client {
 		// Creating a client socket
 		this.setClientSocket(new DatagramSocket(Constants.DEFAULT_CLIENT_PORT));
 
-		//Setting up the controller
-		this.controller = new Controller(this.getRouterIp(), this.getRouterPort(), this.getId(), this.getClientSocket());
+		// Setting up the controller
+		this.controller = new Controller(this.getRouterIp(),
+				this.getRouterPort(), this.getId(), this.getClientSocket());
 
 	}
 
@@ -48,8 +48,8 @@ public class Client {
 	}
 
 	private void setClientSocket(DatagramSocket clientSocket) {
-		this.clientSocket=clientSocket;
-		
+		this.clientSocket = clientSocket;
+
 	}
 
 	private int getRouterPort() {
@@ -72,13 +72,9 @@ public class Client {
 		return id;
 	}
 
-	
-
 	private void setId(int id) {
 		this.id = id;
 	}
-
-	
 
 	public void start() throws IOException {
 		logger.info("Client started");
@@ -97,18 +93,34 @@ public class Client {
 		}
 	}
 
-	private void executeCommand(String command){
-		String[] cmdsData=command.split(""+Constants.Commands.COMMAND_DATA_SEPARATOR);
-		String justTheCommand = cmdsData[0];
+	private void executeCommand(String command) {
+		String[] cmdsData = command.split(""
+				+ Constants.Commands.COMMAND_DATA_SEPARATOR);
+		String justTheCommand = cmdsData[0].toLowerCase();
+		String data = cmdsData[1];
 
-		if(justTheCommand.toLowerCase().equals("send")){
-			int destinationId=Integer.parseInt(cmdsData[1]);			
+		if (contains(Constants.Commands.INSERT_COMMANDS, justTheCommand)) {
+			this.controller.insert(data);
+		} else if (contains(Constants.Commands.DELETE_COMMANDS, justTheCommand)) {
+			this.controller.delete(data);
+
+		} else if (contains(Constants.Commands.SEND_COMMANDS, justTheCommand)) {
+			int destinationId = Integer.parseInt(cmdsData[1]);
 			this.controller.sendMessage(destinationId);
 		}
 
 	}
-	
-	
+
+	private static boolean contains(String[] array, String item) {
+		for (String str : array) {
+			if (str.equals(item)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public static void main(String[] args) throws IOException {
 
 		// validate command-line args
@@ -120,7 +132,7 @@ public class Client {
 		String routerIp = args[0];
 		int routerPort = Integer.parseInt(args[1]);
 		int clientId = Integer.parseInt(args[2]);
-		
+
 		// Just printing the command line args
 		System.out.println("Router IP : " + routerIp);
 		System.out.println("Router port : " + routerPort);

@@ -1,5 +1,8 @@
 package common;
 
+import java.util.List;
+import java.util.Vector;
+
 public interface Constants {
 	String LOG_CONFIG = "log_configuration.dat";
     
@@ -19,6 +22,9 @@ public interface Constants {
 	int NUM_OF_NODES = 5;
 	
 	interface Commands {
+		String[] INSERT_COMMANDS={"insert","i"};
+		String[] DELETE_COMMANDS={"delete","d"};
+		String[] SEND_COMMANDS={"send","s"};
 		char COMMAND_DATA_SEPARATOR=' ';
 		char KEY_VALUE_SEPARATOR=FIELD_SEPARATOR;
 	}

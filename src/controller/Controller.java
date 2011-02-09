@@ -112,7 +112,8 @@ public class Controller {
 	
 	//TODO: Implement this
 	private synchronized Message generateMessage(int destinationId){
-		return null;
+		Message aMsg = new Message(this.anEventLog, this.aTimeTable, this.getClientId(), destinationId);
+		return aMsg;
 	}
 	
 	public synchronized boolean sendMessage(int destinationId){
