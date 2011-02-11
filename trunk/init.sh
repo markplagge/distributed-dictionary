@@ -1,5 +1,7 @@
 #!/bin/env bash
 
+#Please look at hosts.dat file to know the hostnames of the IPs used below
+
 router_ip="128.111.43.36"
 
 if [ "$1" == "r" ]
