@@ -1,16 +1,20 @@
 # Set client logger to client+stdout appender
 log4j.logger.client=DEBUG, client, stdout
-log4j.logger.controller=DEBUG, stdout
+
+# Set controller logger to controller appender
+log4j.logger.controller=DEBUG, controller
+
+# Set router logger to router+stdout appender
 log4j.logger.router=DEBUG, router, stdout
 
-# client appender configuration
+# stdout appender configuration
 log4j.appender.stdout=org.apache.log4j.ConsoleAppender
 log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
 log4j.appender.stdout.layout.ConversionPattern=%d [%t] %p %c %x - %m%n
 
 # client log appender configuration
 log4j.appender.client=org.apache.log4j.FileAppender
-log4j.appender.client.file=/cs/student/kowshik/271-dict/client_dict.log
+log4j.appender.client.file=/var/tmp/client_dict.log
 log4j.appender.client.append=false
 log4j.appender.client.layout=org.apache.log4j.PatternLayout
 log4j.appender.client.layout.ConversionPattern=%d [%t] %p %c %x - %m%n
@@ -18,7 +22,7 @@ log4j.appender.client.layout.ConversionPattern=%d [%t] %p %c %x - %m%n
 
 # controller log appender configuration
 log4j.appender.controller=org.apache.log4j.FileAppender
-log4j.appender.controller.file=/cs/student/kowshik/271-dict/controller_dict.log
+log4j.appender.controller.file=/var/tmp/controller_dict.log
 log4j.appender.controller.append=false
 log4j.appender.controller.layout=org.apache.log4j.PatternLayout
 log4j.appender.controller.layout.ConversionPattern=%d [%t] %p %c %x - %m%n
@@ -26,7 +30,7 @@ log4j.appender.controller.layout.ConversionPattern=%d [%t] %p %c %x - %m%n
 
 # router log appender configuration
 log4j.appender.router=org.apache.log4j.FileAppender
-log4j.appender.router.file=/cs/student/kowshik/271-dict/router_dict.log
+log4j.appender.router.file=/var/tmp/router_dict.log
 log4j.appender.router.append=false
 log4j.appender.router.layout=org.apache.log4j.PatternLayout
 log4j.appender.router.layout.ConversionPattern=%d [%t] %p %c %x - %m%n

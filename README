@@ -1,0 +1,65 @@
+This file explains how to run the system.
+
+
+INITIALIZATION
+--------------
+
+1) Use ant to compile and build the project using the command : ant build
+
+2) Use init.sh in order to start a client or router
+	- We have hardcoded the IP addresses of machines in CSIL which we used for testing and deployment.
+	- The script takes one argument at a time:
+		./init.sh r	
+			starts up the router		
+		./init.sh <client_id>
+			where <client_id> is an integer (0 to 4)
+		    specifying the logical address of a client		
+	- Run each configuration of the script at different machines.
+	  Look at hosts.txt to know the IP of the clients and router that we have configured.
+	  
+3) We use Apache log4j for logging. 
+   Log files depicting communication between client <-> client and client <-> router
+   can be found at the following locations :
+        - Client : /var/tmp/client_dict.log
+        - Controller : /var/tmp/controller_dict.log
+        - Router : /var/tmp/router_dict.log
+   The above locations of log files can be changed in the log4j conf file : log_configuration.dat
+   
+
+
+COMMANDS
+--------
+
+At any client prompt, you can type the following commands.
+
+1) showdict (or) sd
+		Shows the contents of the local dictionary
+   		Example : http://pastebin.com/0iEEDaeX
+   		
+2) showtt (or) stt
+		Shows the contents of the timetable
+		Example : http://pastebin.com/dArFZFH7
+		
+3) showval (or) sv
+		Shows the value for a particular key in the dictionary
+		Example : http://pastebin.com/TwYEPxWU
+		
+4) insert unique_key:value
+		Inserts a key-value pair into the dictionary.
+		Example : http://pastebin.com/m4n9bLq1
+		NOTE : Its assumed that the user inserts unique keys across clients
+			   Please look at /var/tmp/controller_dict.log for the event log
+5) delete key
+		Deletes the key-value pair with the given key from the dictionary
+		Example : http://pastebin.com/j1sZHC8v
+		NOTE : Please look at /var/tmp/controller_dict.log for the event log
+
+6) send client_id
+		Sends the time table, partial log to the specified client_id
+		Example : http://pastebin.com/ZW7QNk3A
+		
+   
+
+
+
+	

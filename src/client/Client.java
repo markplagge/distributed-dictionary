@@ -116,7 +116,7 @@ public class Client {
 					+ this.controller.getDictionaryString() + "\n");
 		} else if (contains(Constants.Commands.SHOW_TIMETABLE_COMMANDS,
 				justTheCommand)) {
-			logger.info("\n\nDictionary contents : \n\n"
+			logger.info("\n\nTime table contents : \n\n"
 					+ this.controller.getTimeTableString() + "\n");
 		} else if (contains(Constants.Commands.SHOW_VALUE_COMMANDS,
 				justTheCommand)) {
