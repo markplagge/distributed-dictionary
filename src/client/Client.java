@@ -124,6 +124,11 @@ public class Client {
 			logger.info("\n\nValue for key : "+key+"\n\n"
 					+ this.controller.getValue(key) + "\n");
 		}
+		
+		else if (contains(Constants.Commands.SHOW_LOG_COMMANDS,
+				justTheCommand)) {			
+			logger.info("\n\nLog contents : \n\n"+this.controller.getLogString());
+		}
 
 	}
 

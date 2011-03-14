@@ -275,4 +275,8 @@ public class Controller {
 	public synchronized String getValue(String key){
 		return this.aDictionary.get(key);
 	}
+
+	public String getLogString() {
+		return this.anEventLog.toString();
+	}
 }

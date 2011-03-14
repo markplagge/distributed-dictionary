@@ -28,6 +28,7 @@ public interface Constants {
 		String[] SHOW_DICT_COMMANDS = {"showdict","sd"};
 		String[] SHOW_TIMETABLE_COMMANDS = {"showtt","stt"};
 		String[] SHOW_VALUE_COMMANDS = {"showval","sv"};
+		String[] SHOW_LOG_COMMANDS = {"showlog","sl"};
 		char COMMAND_DATA_SEPARATOR=' ';
 		char KEY_VALUE_SEPARATOR=FIELD_SEPARATOR;
 		
