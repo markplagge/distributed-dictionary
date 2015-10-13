@@ -1,0 +1,1 @@
+Implementation of a distributed dictionary / key-value store based on the techniques proposed by Wuu and Bernstein.
